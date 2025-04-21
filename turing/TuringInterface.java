@@ -19,8 +19,10 @@ public interface TuringInterface{
     public abstract boolean accepts(String s);
 
     public Set<Character> getSigma();
+    
+    public Set<Character> getTapeAlphabet();
 
-    public State getState();
+    public State getState(String name);
 
     public boolean isAccept(String name);
 
