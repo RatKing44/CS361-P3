@@ -9,6 +9,7 @@ public class TMSimulator implements TuringInterfaceExtra {
     private LinkedHashSet<State> states;
     private LinkedHashSet<Character> sigma;
     private LinkedHashSet<Character> tapeAlphabet;
+    //private static char tape[];
     private static HashMap<Integer, Integer> tape;
     private State startingState;
     private State acceptState;
@@ -21,12 +22,15 @@ public class TMSimulator implements TuringInterfaceExtra {
         states = new LinkedHashSet<>();
         sigma = new LinkedHashSet<>();
         tapeAlphabet = new LinkedHashSet<>();
+        //tape = new char[50000];
         tape = new HashMap<>();
+        index = 0;
         try{
             File file = new File(filePath);
             Scanner scanner = new Scanner(file);
             numStates = Integer.parseInt(scanner.nextLine());
 
+            //adding states
             for(int i = 0; i < numStates; i++){
                 states.add(new TuringState(String.valueOf(i)));
                 if(i==0){
@@ -36,23 +40,26 @@ public class TMSimulator implements TuringInterfaceExtra {
                 }
             }
 
+            //adding characters to language
             numSymb = Integer.parseInt(scanner.nextLine());
-            for(int i = 0; i < numSymb; i++){
+            for(int i = 0; i <= numSymb; i++){
                 addSigma((char) (i + '0'));
             }
 
 
-            for(int i = 0; i < numSymb; i++){
-               for(int j = 0; j < numSymb; j++){
+            //adding transitions
+            for(int i = 0; i < numStates - 1; i++){
+               for(int j = 0; j < numSymb + 1; j++){
                     String line = scanner.nextLine();
                     String[] parts = line.split(",");
-                    addTransition(String.valueOf(i), Set.of(parts[0]),(char)(j + '0'), parts[1].charAt(0), parts[2].charAt(0));
+                    addTransition(String.valueOf(i), Set.of(parts[0]), (char)(j + '0'), parts[1].charAt(0), parts[2].charAt(0));
                }
             }
 
             if(scanner.hasNext()){
-                input= scanner.nextLine();
+                input = scanner.nextLine();
                 for(int i = 0; i < input.length(); i++){
+                    //tape[i] = input.charAt(i);
                     tape.put(i, (int)input.charAt(i));
                 }
             }
@@ -62,11 +69,17 @@ public class TMSimulator implements TuringInterfaceExtra {
         
         }catch (FileNotFoundException e){
             System.out.println("File not found: " + filePath);
+            e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
-        new TMSimulator("file0.txt");
+        if(args.length != 1){
+            System.err.println("Usage: java TMSimulator <file-path>");
+            System.exit(1);
+        }
+        String filePath = args[0];
+        new TMSimulator(filePath);
         System.out.println(index);
         System.out.println(printTape());
         
@@ -138,14 +151,16 @@ public class TMSimulator implements TuringInterfaceExtra {
 
     @Override
     public boolean accepts(String s) {
-        index = 0;
+        //index = 0;
         TuringState state = (TuringState) startingState;
         while(!isAccept(state.getName())){
             int input = 0;
             try{
+                //input = tape[index -25000];
                 input = tape.get(index);
             }catch(Exception e){
-                tape.put(index, 0);
+                 tape.put(index, 0);
+                //tape[index  + 25000] = 0;
             }
             char characterInput;
             if(input == 0){
@@ -157,7 +172,8 @@ public class TMSimulator implements TuringInterfaceExtra {
             if(transition == null){
                 return false;
             }
-            tape.put(index, (int) transition.getWriteSymb());
+            //tape[index+25000] = transition.getWriteSymb();
+            tape.put(index, (int)transition.getWriteSymb());
             state = (TuringState) transition.getToState();
             if(transition.getMoveSymb() == 'R'){
                 index++;
@@ -240,6 +256,11 @@ public class TMSimulator implements TuringInterfaceExtra {
             sum = sum + Integer.parseInt(String.valueOf((char)value));
 
         }
+
+        // for (int i = 0; i < tape.length; i++) {
+        //     str.append(tape[i]);
+        //     sum += tape[i];
+        // }
         str.append("\n" + sum + "\n");
         return str.toString();
     }
